@@ -1,0 +1,52 @@
+def can_split(max_pages, chapters, kvolume):
+    """
+    Проверяет, можно ли разбить главы на kvolume томов так,
+    чтобы каждый том содержал не более max_pages страниц
+    """
+    volumes = 1  # начинаем с первого тома
+    current_sum = 0  # текущее количество страниц в текущем томе
+
+    for pages in chapters:
+        # Если одна глава уже больше допустимого максимума - невозможно
+        if pages > max_pages:
+            return False
+
+        # Если текущая глава помещается в текущий том
+        if current_sum + pages <= max_pages:
+            current_sum += pages  # добавляем главу к текущему тому
+        else:
+            # Начинаем новый том
+            volumes += 1
+            current_sum = pages   # новый том начинается с текущей главы
+            # Если превысили лимит томов - невозможно
+            if volumes > kvolume:
+                return False
+
+    return volumes <= kvolume  # проверяем, что использовали не более kvolume томов
+
+def main():
+    # Ввод данных
+    n = int(input("Количество глав: "))
+    str_mass = input("Страницы: ").split()
+    chapters = []
+    for i in str_mass:
+        chapters.append(int(i))
+    kvolume = int(input("Количество томов: "))
+
+    # Границы бинарного поиска
+    left = max(chapters)  # минимально возможный ответ
+    right = sum(chapters) # максимально возможный ответ
+
+    # Бинарный поиск по ответу
+    while left < right:
+        mid = (left + right) // 2  # пробуем этот объем
+
+        if can_split(mid, chapters, kvolume):
+            right = mid  # можно разбить - пробуем уменьшить объем
+        else:
+            left = mid + 1  # нельзя разбить - нужно увеличить объем
+
+    print("Кол-во страниц в самом толстом томе: " + str(left))
+
+if __name__ == "__main__":
+    main()
